@@ -3,7 +3,7 @@
 #include "RF24.h"
 #include "LowPower.h"
 
-#define DEBUGSERVER
+//#define DEBUGSERVER
 #ifdef  DEBUGSERVER
 
 int serial_putc( char c, FILE * )  {
@@ -119,6 +119,8 @@ void setup() {
     radio.begin();
     radio.openWritingPipe(dstAddress);
     radio.openReadingPipe(1,nodeAddress);
+    radio.setChannel(3);
+    radio.setPayloadSize(sizeof(Message));
 
 #ifdef DEBUGSERVER
     radio.printDetails();

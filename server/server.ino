@@ -16,11 +16,22 @@
  * node can then see how long the whole cycle took.
  */
 
+#define DEBUGSERVER
 #include <SPI.h>
 #include "nRF24L01.h"
 #include "RF24.h"
-#ifdef DEBUGSERVER
-#include "printf.h"
+#ifdef  DEBUGSERVER
+
+int serial_putc( char c, FILE * )  {
+  Serial.write( c );
+  return c;
+} 
+
+void printf_begin(void) {
+  fdevopen( &serial_putc, 0 );
+}
+
+
 #endif
 
 //
@@ -46,7 +57,7 @@ typedef struct sMessage Message;
 //
 
 // Radio pipe addresses for the 2 nodes to communicate.
-const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xE8E8F5F0E1LL };
+const uint64_t pipes[2] = { 0xE8E8F5FCA1LL, 0xE8E8F5F0E1LL };
 
 //
 // Role management
@@ -85,10 +96,11 @@ void setup(void)
     
     // optionally, increase the delay between retries & # of retries
     radio.setRetries(15,15);
+    radio.setChannel(3);
     
     // optionally, reduce the payload size.  seems to
     // improve reliability
-    //radio.setPayloadSize(8);
+    radio.setPayloadSize(sizeof(Message));
     
     //
     // Open pipes to other nodes for communication
@@ -101,7 +113,7 @@ void setup(void)
     
     //if ( role == role_ping_out )
     {
-        //radio.openWritingPipe(pipes[0]);
+        radio.openWritingPipe(pipes[0]);
         radio.openReadingPipe(1,pipes[1]);
     }
     //else
