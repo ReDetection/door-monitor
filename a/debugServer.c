@@ -19,7 +19,9 @@
 #include <SPI.h>
 #include "nRF24L01.h"
 #include "RF24.h"
+#ifdef DEBUGSERVER
 #include "printf.h"
+#endif
 
 //
 // Hardware configuration
@@ -27,7 +29,11 @@
 
 // Set up nRF24L01 radio on SPI bus plus pins 9 & 10
 
+#ifdef DEBUGSERVER
 RF24 radio(7,8);
+#else
+RF24 radio(9,10);
+#endif
 struct sMessage {
     unsigned long time;
     uint8_t doorIsClosed : 1;
@@ -63,13 +69,14 @@ void setup(void)
     //
     // Print preamble
     //
+#ifdef DEBUGSERVER
     
     Serial.begin(57600);
     printf_begin();
     printf("\n\rRF24/examples/GettingStarted/\n\r");
     printf("ROLE: %s\n\r",role_friendly_name[role]);
     printf("*** PRESS 'T' to begin transmitting to the other node\n\r");
-    
+#endif
     //
     // Setup and configure rf radio
     //
@@ -109,11 +116,13 @@ void setup(void)
     
     radio.startListening();
     
+#ifdef DEBUGSERVER
     //
     // Dump the configuration of the rf unit for debugging
     //
     
     radio.printDetails();
+#endif
 }
 
 void loop(void)
@@ -129,13 +138,17 @@ void loop(void)
         
         // Take the time, and send it.  This will block until complete
         unsigned long time = millis();
+#ifdef DEBUGSERVER
         printf("Now sending %lu...",time);
+#endif
         bool ok = radio.write( &time, sizeof(unsigned long) );
         
+#ifdef DEBUGSERVER
         if (ok)
             printf("ok...");
         else
             printf("failed.\n\r");
+#endif
         
         // Now, continue listening
         radio.startListening();
@@ -150,7 +163,9 @@ void loop(void)
         // Describe the results
         if ( timeout )
         {
+#ifdef DEBUGSERVER
             printf("Failed, response timed out.\n\r");
+#endif
         }
         else
         {
@@ -158,8 +173,10 @@ void loop(void)
             unsigned long got_time;
             radio.read( &got_time, sizeof(unsigned long) );
             
+#ifdef DEBUGSERVER
             // Spew it
             printf("Got response %lu, round-trip delay: %lu\n\r",got_time,millis()-got_time);
+#endif
         }
         
         // Try again 1s later
@@ -184,8 +201,10 @@ void loop(void)
                 // Fetch the payload, and see if this was the last one.
                 done = radio.read( &message, sizeof(Message) );
                 
+#ifdef DEBUGSERVER
                 // Spew it
                 printf("Got payload %lu, door is %s...",message.time, message.doorIsClosed ? "closed": "opened");
+#endif
                 
                 // Delay just a little bit to let the other unit
                 // make the transition to receiver
@@ -198,7 +217,9 @@ void loop(void)
             unsigned long time = message.time;
             // Send the final one back.
             radio.write( &time, sizeof(unsigned long) );
+#ifdef DEBUGSERVER
             printf("Sent response.\n\r");
+#endif
             
             // Now, resume listening so we catch the next packets.
             radio.startListening();
@@ -214,7 +235,9 @@ void loop(void)
         char c = toupper(Serial.read());
         if ( c == 'T' && role == role_pong_back )
         {
+#ifdef DEBUGSERVER
             printf("*** CHANGING TO TRANSMIT ROLE -- PRESS 'R' TO SWITCH BACK\n\r");
+#endif
             
             // Become the primary transmitter (ping out)
             role = role_ping_out;
@@ -223,7 +246,9 @@ void loop(void)
         }
         else if ( c == 'R' && role == role_ping_out )
         {
+#ifdef DEBUGSERVER
             printf("*** CHANGING TO RECEIVE ROLE -- PRESS 'T' TO SWITCH BACK\n\r");
+#endif
             
             // Become the primary receiver (pong back)
             role = role_pong_back;
