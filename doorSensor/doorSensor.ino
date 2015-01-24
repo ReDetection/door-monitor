@@ -3,7 +3,7 @@
 #include "RF24.h"
 #include "LowPower.h"
 
-//#define DEBUGSERVER
+#define DEBUGSERVER
 #ifdef  DEBUGSERVER
 
 int serial_putc( char c, FILE * )  {
@@ -58,14 +58,16 @@ void sendState(bool closed) {
 #ifdef DEBUGSERVER
       printf("sending... ");
 #endif
+      radio.setPayloadSize(sizeof(Message));
       radio.write(&message, sizeof(Message));
 
-
       radio.startListening();
+      radio.setPayloadSize(sizeof(unsigned long));
+      printf("waiting %d bytes payload.. ", radio.getPayloadSize());
       unsigned long started_waiting_at = millis();
       bool timeout = false;
       while ( ! radio.available() && ! timeout )
-        if (millis() - started_waiting_at > 200 )
+        if (millis() - started_waiting_at > 2000 )
           timeout = true;
 
       if (timeout) {
@@ -79,7 +81,7 @@ void sendState(bool closed) {
         success = ackMessageWithTime == message.time;
 #ifdef DEBUGSERVER
         printf("got ack with time %lu\n\r", ackMessageWithTime);
-#endif
+#endif 
       }
       
       radio.stopListening();
@@ -99,9 +101,17 @@ void setup() {
 
     Serial.begin(57600);
     printf_begin();
+    digitalWrite(LED_PIN, HIGH);
+    delay(50);
+    digitalWrite(LED_PIN, LOW);
+    delay(2000);
+    
+
     printf("\n\rNODE\n\r");
+    printf("ulong: %d, message: %d\n\r", sizeof(unsigned long), sizeof(Message));
     
 #endif
+
 
     pinMode(LED_PIN, OUTPUT);
   

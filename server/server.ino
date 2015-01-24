@@ -95,7 +95,7 @@ void setup(void)
     radio.begin();
     
     // optionally, increase the delay between retries & # of retries
-    radio.setRetries(15,15);
+    //radio.setRetries(15,15);
     radio.setChannel(3);
     
     // optionally, reduce the payload size.  seems to
@@ -201,6 +201,7 @@ void loop(void)
     
     if ( role == role_pong_back )
     {
+        radio.setPayloadSize(sizeof(Message));
         // if there is data ready
         if ( radio.available() )
         {
@@ -220,17 +221,21 @@ void loop(void)
                 
                 // Delay just a little bit to let the other unit
                 // make the transition to receiver
-                delay(20);
+                delay(40);
             }
             
             // First, stop listening so we can talk
             radio.stopListening();
-            
+               
+               
+            radio.setPayloadSize(sizeof(unsigned long));
+
             unsigned long time = message.time;
             // Send the final one back.
             radio.write( &time, sizeof(unsigned long) );
 #ifdef DEBUGSERVER
-            printf("Sent response.\n\r");
+            printf("Sent response %ld.\n\r", time);
+            radio.printDetails();
 #endif
             
             // Now, resume listening so we catch the next packets.
