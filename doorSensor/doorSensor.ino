@@ -3,7 +3,7 @@
 #include "RF24.h"
 #include "LowPower.h"
 
-#define DEBUGSERVER
+//#define DEBUGSERVER
 #ifdef  DEBUGSERVER
 
 int serial_putc( char c, FILE * )  {
@@ -46,6 +46,7 @@ void sendState(bool closed) {
     delay(10);
     
     Message message;
+    Message messageAck;
     message.time = millis();
     message.doorIsClosed = closed ? 1 : 0;
     message.doorIsLocked = 0;
@@ -58,36 +59,13 @@ void sendState(bool closed) {
 #ifdef DEBUGSERVER
       printf("sending... ");
 #endif
-      radio.setPayloadSize(sizeof(Message));
-      radio.write(&message, sizeof(Message));
-
-      radio.startListening();
-      radio.setPayloadSize(sizeof(unsigned long));
-      printf("waiting %d bytes payload.. ", radio.getPayloadSize());
-      unsigned long started_waiting_at = millis();
-      bool timeout = false;
-      while ( ! radio.available() && ! timeout )
-        if (millis() - started_waiting_at > 2000 )
-          timeout = true;
-
-      if (timeout) {
+      success = radio.write(&message, sizeof(Message));
+    
 #ifdef DEBUGSERVER
-        printf("Failed, response timed out.\n\r");
+      printf("ack == %d\n", success? 1 : 0);
 #endif
-
-      } else {
-        unsigned long ackMessageWithTime;
-        radio.read( &ackMessageWithTime, sizeof(unsigned long) );
-        success = ackMessageWithTime == message.time;
-#ifdef DEBUGSERVER
-        printf("got ack with time %lu\n\r", ackMessageWithTime);
-#endif 
-      }
-      
-      radio.stopListening();
     }
     
-    radio.powerDown();
     digitalWrite(LED_PIN, LOW);
     delay(10);
 }
@@ -127,6 +105,7 @@ void setup() {
     delay(20);
     
     radio.begin();
+    radio.setRetries(15,15);
     radio.openWritingPipe(dstAddress);
     radio.openReadingPipe(1,nodeAddress);
     radio.setChannel(3);
@@ -141,7 +120,9 @@ void setup() {
 }
 
 void loop() {
+    radio.powerDown();
     LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+    radio.powerUp();
     delay(20);
     
     bool currentDoorState = isDoorClosed();
