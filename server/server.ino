@@ -41,6 +41,7 @@ void printf_begin(void) {
 // Set up nRF24L01 radio on SPI bus plus pins 9 & 10
 
 #ifdef DEBUGSERVER
+#define LED_PIN 2
 RF24 radio(7,8);
 #else
 RF24 radio(9,10);
@@ -83,8 +84,11 @@ void setup(void)
 #ifdef DEBUGSERVER
     
     Serial.begin(57600);
+    digitalWrite(LED_PIN, HIGH);
+    delay(50);
+    digitalWrite(LED_PIN, LOW);
+    delay(2000);
     printf_begin();
-    printf("\n\rRF24/examples/GettingStarted/\n\r");
     printf("ROLE: %s\n\r",role_friendly_name[role]);
     printf("*** PRESS 'T' to begin transmitting to the other node\n\r");
 #endif
