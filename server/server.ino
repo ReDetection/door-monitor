@@ -63,7 +63,7 @@ void loop(void) {
         Message message;
         radio.read( &message, sizeof(Message) );
             
-        printf("{nodeMillis:%lu,doorClosed:%s,doorLocked:%s,}\n", message.time, message.doorIsClosed ? "true": "false", message.doorIsLocked ? "true" : "false");
+        printf("{\"nodeMillis\":%lu,\"doorClosed\":%s,\"doorLocked\":%s}\n", message.time, message.doorIsClosed ? "true": "false", message.doorIsLocked ? "true" : "false");
     }
 
     delay(50);
