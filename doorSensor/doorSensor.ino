@@ -18,7 +18,7 @@ void printf_begin(void) {
 
 #endif
 
-#define LED_PIN 3
+#define LED_PIN 0
 #define DOOR_PIN 2
 
 
