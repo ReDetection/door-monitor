@@ -16,7 +16,7 @@ while 1:
 
 	key = time.strftime("%d-%m-%Y-%H-%M") + "-" + str(message["nodeMillis"]) + "-" + ("closed" if message["doorClosed"] else "open")
 
-	redisRecord = {"time": time.time, "message": message}
+	redisRecord = {"time": time.strftime("%c"), "message": message}
 
 	redis.set(key, redisRecord)
 
