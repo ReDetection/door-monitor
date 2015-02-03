@@ -14,8 +14,11 @@ while 1:
 
 	message = json.loads(line)
 
-	key = time.strftime("%d-%m-%Y") + "-" + str(message["nodeMillis"]) + "-" + ("closed" if message["doorClosed"] else "open")
-	redis.set(key, message)
+	key = time.strftime("%d-%m-%Y-%H-%M") + "-" + str(message["nodeMillis"]) + "-" + ("closed" if message["doorClosed"] else "open")
+
+	redisRecord = {"time": time.time, "message": message}
+
+	redis.set(key, redisRecord)
 
 
 
