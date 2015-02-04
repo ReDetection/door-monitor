@@ -67,7 +67,7 @@ void loop(void) {
         printf("{\"nodeMillis\":%lu,", message.time);
         printf("\"retries\":%u,", message.retries);
         printf("\"doorClosed\":%s,", message.doorIsClosed ? "true": "false");
-        printf("\"doorLocked\":%s}", message.doorIsLocked ? "true": "false");
+        printf("\"doorLocked\":%s}\n", message.doorIsLocked ? "true": "false");
     }
 
     delay(50);
