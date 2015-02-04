@@ -23,6 +23,7 @@ RF24 radio(9,10);
 
 struct sMessage {
     unsigned long time;
+    uint8_t retries;
     uint8_t doorIsClosed : 1;
     uint8_t doorIsLocked : 1;
     uint8_t              : 6;
@@ -63,7 +64,10 @@ void loop(void) {
         Message message;
         radio.read( &message, sizeof(Message) );
             
-        printf("{\"nodeMillis\":%lu,\"doorClosed\":%s,\"doorLocked\":%s}\n", message.time, message.doorIsClosed ? "true": "false", message.doorIsLocked ? "true" : "false");
+        printf("{\"nodeMillis\":%lu,", message.time);
+        printf("\"retries\":%u,", message.retries);
+        printf("\"doorClosed\":%s,", message.doorIsClosed ? "true": "false");
+        printf("\"doorLocked\":%s}\n", message.doorIsLocked ? "true": "false");
     }
 
     delay(50);
