@@ -33,6 +33,7 @@ const uint64_t nodeAddress = 0xE8E8F5FCA1LL;
 
 struct sMessage {
   unsigned long time;
+  uint8_t retries;
   uint8_t doorIsClosed : 1;
   uint8_t doorIsLocked : 1;
   uint8_t              : 6;
@@ -47,6 +48,7 @@ void sendState(bool closed) {
     
     Message message;
     Message messageAck;
+    message.retries = 0;
     message.time = millis();
     message.doorIsClosed = closed ? 1 : 0;
     message.doorIsLocked = 0;
@@ -64,6 +66,7 @@ void sendState(bool closed) {
 #ifdef DEBUGSERVER
       printf("ack == %d\n", success? 1 : 0);
 #endif
+      message.retries++;
     }
     
     digitalWrite(LED_PIN, LOW);

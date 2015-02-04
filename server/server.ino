@@ -23,6 +23,7 @@ RF24 radio(9,10);
 
 struct sMessage {
     unsigned long time;
+    uint8_t retries;
     uint8_t doorIsClosed : 1;
     uint8_t doorIsLocked : 1;
     uint8_t              : 6;
